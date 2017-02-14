@@ -42,7 +42,7 @@ export default class extends Phaser.State {
 
   }
 
-  // We draw the letters and set them as draggable objects, scaling them now, making them snapable and giving them a real "name"
+  // We draw the letters and set them as draggable objects, scaling them down, making them snapable and giving them a real "name"
   createLetters() {
     this.letters = game.add.group();
     this.letters.physicsBodyType = Phaser.Physics.ARCADE;
