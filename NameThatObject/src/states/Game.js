@@ -31,13 +31,14 @@ export default class extends Phaser.State {
 
     // Show the draggable letters
     this.createLetters();    
-
+    
+    //  Sounds definitions
     errorSound = game.add.audio('error');
     levelCompletedSound = game.add.audio('levelcompleted');
     youWonSound = game.add.audio('youwon');
 
     //  We decode the MP3 files
-    game.sound.setDecodedCallback([errorSound, levelCompletedSound], this.soundSet, this);
+    game.sound.setDecodedCallback([errorSound, levelCompletedSound, youWonSound], this.soundSet, this);
 
   }
 
