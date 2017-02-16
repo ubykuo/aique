@@ -1,7 +1,7 @@
 /* globals __DEV__ */
 import Phaser from 'phaser'
 
-const levels = {
+var levels = {
   words: [{
     name: 'dog',
     image: 'dog'
@@ -10,23 +10,24 @@ const levels = {
     image:'house'
   }, {
     name: 'car',
-    image: 'happycar'
+    image: 'happycar',
   }]
 };
 
-const abc = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']; // ñ?
+const abc = ['a','b','c','d','e','f','g','h','ih','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']; // ñ?
 
 var letters;
 var boxes;
 var currentSpritePosition;
-var progress = 0;
-var level = 0;
+var progress;
+var level;
 var currentObject;
 var currentWordLength;
-var stateText;
 var errorSound;
 var levelCompletedSound;
 var youWonSound;
+var levelText;
+var stateText;
 
 export default class extends Phaser.State {
 
@@ -34,6 +35,12 @@ export default class extends Phaser.State {
 
     //  Init physics engine
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    //  Shuffle the levels
+    this.shuffleLevels(levels);   
+
+    //  Initialize the progress and level
+    this.initializeProgress();
 
     //  We draw the object to name
     this.drawObject();
@@ -44,14 +51,22 @@ export default class extends Phaser.State {
     //  Show the draggable letters
     this.createLetters();    
 
-    // Sound definitions
+    //  Sound definitions
     errorSound = game.add.audio('error');
     levelCompletedSound = game.add.audio('levelcompleted');
     youWonSound = game.add.audio('youwon');
 
+    //  Congratulations text set
+    /*stateText = game.add.text(this.world.centerX,540,'You Won!      ', { font: '50px Bangers', fill: '#000' });
+    stateText.visible = false;
+    stateText.anchor.set(0.5);*/
+
+    levelText = game.add.text(this.world.centerX+200,20,'Level: '+ level + '   ', { font: '30px Bangers', fill: '#8fc25c' });
+    levelText.visible = true;
+    levelText.anchor.set(0.5);
+
     //  We decode the MP3 files
     game.sound.setDecodedCallback([errorSound, levelCompletedSound, youWonSound], this.soundSet, this);
-
   }
 
   //  We draw the letters and set them as draggable objects, scaling them now, making them snapable and giving them a real "name"
@@ -62,13 +77,16 @@ export default class extends Phaser.State {
     var letterCount = 0;
     for(var i = 0 ; i <= 4 ; i++) {
       for(var j = 0; j < 6 ; j++) {
-        var letter = this.letters.create(120* j, 150* i ,'letter',letterCount);
+        var letter = this.letters.create(120* j, 0 ,'letter',letterCount);
         letter.events.onDragStart.add(this.dragStart);
         letter.events.onDragStop.add(this.dragStop,this);
         letter.letterName = abc[letterCount]; //  We assign a real 'letter' to the object
         letter.scale.setTo(0.45,0.45);
         letter.inputEnabled = true;
         letter.input.enableDrag(false, true);
+
+        game.add.tween(letter).to( { y: 150*i }, (letterCount*50), Phaser.Easing.Quadratic.Out, true);
+
         letterCount++;
 
         if(letterCount == 26) //  We've drawn all the alphabet, so we stop 
@@ -123,14 +141,20 @@ export default class extends Phaser.State {
   }
 
   showCongratulations () {
-    stateText = game.add.text(960,540,'You Won!!      ', { font: '84px Bangers', fill: '#000' });
+
+    //  Show congratulations text
+    //stateText.visible = true;
+
     youWonSound.play();
+
+    // Wait 4 seconds and show the menu
+    game.time.events.add(Phaser.Timer.SECOND * 4, function () {this.state.start('Menu')}, this);
   }
 
   //  When we complete the word, we get a new word/level, if there are no more levels, congratulate the player
   checkLevel () {
     //  When we complete all the words, we win
-    if(levels.words[level].name.length == level+1) {
+    if(levels.words.length == level+1) {
       this.showCongratulations();
     } else {
       levelCompletedSound.play();
@@ -152,7 +176,10 @@ export default class extends Phaser.State {
 
     //  We kill the letters and then we create them again (performance? save starting X,Y and re-sort?)
     this.letters.removeAll();
-    this.createLetters();  
+    this.createLetters(); 
+
+    levelText.setText('Level: '+ level + '   ');
+
   }
 
   //  We check if the right letter is going into the right box
@@ -167,11 +194,29 @@ export default class extends Phaser.State {
 
   boxCollision(currentSprite, box) {
     currentSprite.alignIn(box, Phaser.TOP_CENTER, 0, 0);
-
-    console.log('Collision letter ' + currentSprite.letterName + ' with box number ' + box.boxNumber);
+    //console.log('Collision letter ' + currentSprite.letterName + ' with box number ' + box.boxNumber);
   }
 
-  soundSet() { 
+  // Fisher-Yates (aka Knuth) shuffle algorithm
+  shuffleLevels(sourceArray) { 
+
+    for (var i = 0; i < sourceArray.words.length - 1; i++) {
+        var j = i + Math.floor(Math.random() * (sourceArray.words.length - i));
+
+        var temp = sourceArray.words[j];
+        sourceArray.words[j] = sourceArray.words[i];
+        sourceArray.words[i] = temp;
+    }
+    return sourceArray;
+  }
+
+  initializeProgress() {
+    level = 0;
+    progress = 0;
+
+  }
+
+soundSet() { 
 
   }
 }
