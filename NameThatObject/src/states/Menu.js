@@ -6,7 +6,7 @@ export default class extends Phaser.State {
 
   init() {
     //  About information text
-    about = game.add.text(this.world.centerX, this.world.centerY + 100,"Name that object: game made with Phaser for Ubykuo   ", {font:"Bangers", fontSize: 22,fill:"#000",align:"center"});
+    about = game.add.text(this.world.centerX, this.world.centerY + 120,"Name that object: game made for Ubykuo   ", {font:"Bangers", fontSize: 22,fill:"#000",align:"center"});
     about.visible = false;
     about.anchor.setTo(0.5, 0.5);
   }
@@ -19,6 +19,8 @@ export default class extends Phaser.State {
     game.load.image('dog', 'assets/images/dog.png');
     game.load.image('house', 'assets/images/house.png');
     game.load.image('happycar', 'assets/images/happycar.png');
+    game.load.image('bluebuttondown', 'assets/images/bluebuttondown.png');
+
     game.load.spritesheet('letter','assets/images/alphabetspritesheet.png',150,212);
 
     //  Sound
@@ -26,27 +28,33 @@ export default class extends Phaser.State {
     game.load.audio('error','assets/audio/error.mp3');
     game.load.audio('youwon','assets/audio/youwon.mp3')
 
-
     //  Music
+
   }
   
   create () {
+
+    //  Game title 
+    var title = game.add.sprite(game.world.centerX,game.world.centerY-500 ,'gametitle');
+    title.anchor.set(0.5);
+    game.add.tween(title).to( { y: game.world.centerY-200 }, 2000, Phaser.Easing.Back.Out, true);
+
     //  Play button
     this.createButton(game, this.world.centerX, this.world.centerY, 200, 50, 'Play Game', function () { 
       this.state.start('Game')});
 
     //  About button
-    this.createButton(game, this.world.centerX, this.world.centerY + 50, 200, 50, 'About', function () {
+    this.createButton(game, this.world.centerX, this.world.centerY + 60, 200, 50, 'About', function () {
       about.visible ? about.visible = false : about.visible = true;
     });    
   }
 
   createButton(game, x , y, w, h, title, callback) {
-    var button = game.add.button(x, y,'menubutton', callback, this, 2, 1, 0);
+    var button = game.add.button(x, y,'bluebuttondown', callback, this, 2, 1, 0);
     button.anchor.setTo(0.5,0.5);
     button.height = h;
     button.width = w;
-    var txt = game.add.text(button.x,button.y,title, {font:"Bangers", fill:"#fff",align:"center"});
+    var txt = game.add.text(button.x,button.y+3,title, {fontFamily:"Bangers", fontSize:16, fill:"#fff",align:"center"});
     txt.anchor.setTo(0.5,0.5);
   }
 }
