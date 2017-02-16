@@ -16,11 +16,13 @@ export default class extends Phaser.State {
       active: this.fontsLoaded
     })
 
-    let text = this.add.text(this.world.centerX, this.world.centerY, 'loading fonts', { font: '16px Arial', fill: '#dddddd', align: 'center' })
+    let text = this.add.text(this.world.centerX, this.world.centerY, 'Loading resouces', { font: '16px Arial', fill: '#000', align: 'center' })
     text.anchor.setTo(0.5, 0.5)
 
     this.load.image('loaderBg', './assets/images/loader-bg.png')
     this.load.image('loaderBar', './assets/images/loader-bar.png')
+    this.load.image('gametitle', './assets/images/gametitle.png')
+
   }
 
   render () {
