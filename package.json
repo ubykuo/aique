@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack",
+    "start": "webpack-dev-server --progress --inline --history-api-fallback",
     "deploy": "webpack --config webpack.production.config.js",
     "test": "standard"
   },
@@ -23,7 +24,8 @@
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
     "expose-loader": "^0.7.1",
-    "webpack": "^2.2.0"
+    "webpack": "^2.2.0",
+    "webpack-dev-server": "^2.3.0"
   },
   "dependencies": {
     "phaser-ce": "^2.7.3",
