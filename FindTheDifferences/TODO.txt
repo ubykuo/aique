@@ -1,0 +1,6 @@
+TODO:
+
+-Draw a square in both of the pictures mouse tracked + X/Y
+-Copy paste the differences when you click them
+-Generate a pixel copy of the difference and tween to the right/left picture
+-Store the clicked differences
