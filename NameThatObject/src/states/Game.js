@@ -29,6 +29,7 @@ var youWonSound;
 var gameMusic;
 var levelText;
 var stateText;
+var currentTween;
 
 export default class extends Phaser.State {
 
@@ -91,8 +92,7 @@ export default class extends Phaser.State {
         letter.letterName = abc[letterCount]; //  We assign a real 'letter' to the object
         letter.scale.setTo(0.35,0.35);
         letter.inputEnabled = true;
-        letter.input.enableDrag(false, true);
-
+        letter.input.enableDrag(false,true);
         game.add.tween(letter).to( { y: 105*i}, letterCount*50, Phaser.Easing.Quadratic.Out, true);
 
         letterCount++;
@@ -131,13 +131,13 @@ export default class extends Phaser.State {
   }
 
   //  When we start dragging a letter we save the old position in case we need to go back Marty 
-  dragStart(currentSprite) { 
-    console.log('Drag start: ' + currentSprite.x +  '  ' + currentSprite.y);
-      currentSpritePosition = currentSprite.position.clone();
+  dragStart(currentSprite) {
+    currentSpritePosition = currentSprite.position.clone();
   }
 
   //  When we drop the letter in a box we check if its the right letter dropped in the right box
   dragStop (currentSprite) {
+    currentSprite.input.disableDrag();
 
     if(game.physics.arcade.overlap(currentSprite, this.boxes, this.boxCollision, this.processHandler, this)) {
       currentSprite.input.disableDrag();
@@ -146,8 +146,9 @@ export default class extends Phaser.State {
         this.checkLevel();
       }
     } else {
-      currentSprite.position.copyFrom(currentSpritePosition); //  Wrong letter/box! go back where you belong
-      errorSound.play();
+        errorSound.play();
+        game.add.tween(currentSprite).to( {x:currentSpritePosition.x, y:currentSpritePosition.y}, 500, Phaser.Easing.Quadratic.In, true);
+        game.time.events.add(500, function () {currentSprite.input.enableDrag(false,true)}, this); // Fix: avoid changing X,Y on tween
     }
   }
 
@@ -205,16 +206,15 @@ export default class extends Phaser.State {
   //  We check if the right letter is going into the right box
   processHandler(letter, box) {
     var word = levels.words[level].name;
-    console.log(box);
     if(word[box.boxNumber-1] == letter.letterName)
       return true;
 
     return false;
   }
 
-  // Box vs. Letter collision
+  //  Box vs. Letter collision
   boxCollision(currentSprite, box) {
-
+    console.log(currentSprite);
     //  Align the letter in the center of the box
     game.add.tween(currentSprite.scale).to( {x:0.45,y:0.45}, 500, Phaser.Easing.Linear.InOut, true);
     currentSprite.alignIn(box, Phaser.TOP_LEFT, 0, 0);
@@ -224,8 +224,6 @@ export default class extends Phaser.State {
 
     //  We disable the box when its filled
     box.body.enable = false;
-
-    console.log(box);
 
     //console.log('Collision letter ' + currentSprite.letterName + ' with box number ' + box.boxNumber);
   }
@@ -239,7 +237,7 @@ export default class extends Phaser.State {
    letter.inputEnabled = true;
    letter.input.enableDrag(false, true);
    letter.alpha = 0;
-   game.add.tween(letter).to( { alpha: 1}, 700, Phaser.Easing.Linear.None, true);
+   this.currentTween = game.add.tween(letter).to( { alpha: 1}, 700, Phaser.Easing.Linear.None, true);
   }
 
   // Fisher-Yates (aka Knuth) shuffle algorithm
@@ -261,6 +259,7 @@ export default class extends Phaser.State {
   }
 
   soundSet() { 
+    gameMusic.volume = 0.80;
     gameMusic.play();
     errorSound.volume = 0.20;
   }
