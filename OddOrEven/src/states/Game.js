@@ -1,35 +1,19 @@
 /* globals __DEV__ */
 import Phaser from 'phaser'
  
-var levels = {
-  pictures: [{
-    description: 'test',
-    picture:'piggy',
-    differences: [
-    {
-      name: 'violetFlower',
-      x: 693,
-      y: 523,
-      w: 50,
-      h: 50
-    },
-    {
-      name: 'yellowApple',
-      x: 530,
-      y: 50,
-      w: 70,
-      h: 70
-    },
+var levels = [
 	{
-		name: 'mouth',
-		x: 479,
-		y: 343,
-		w: 70,
-		h: 40
+		birds : [
+			{
+				birdX : 100,
+				birdY : 100	
+			},{
+				birdX : 200,
+				birdY : 200		
+			}		
+		]
 	}
-    ]
-  }]
-};
+];
  
 var errorSound;
 var levelCompletedSound;
@@ -40,14 +24,7 @@ var progress;
 var level;
 var levelText;
 var stateText;
-var currentPicture;
-var currentDifferences;
-var bmd;
-var differencesText;
- 
-const scaleX = 0.66;
-const scaleY = 0.74;
-const offset = 400;
+var birds;
 
 export default class extends Phaser.State {
  
@@ -57,17 +34,17 @@ export default class extends Phaser.State {
   }
  
   create () {
- 
     this.initializeProgress();
  
-    this.differencesText = game.add.text(180,20,' ', { font: '30px Bangers', fill: '#8fc25c' });
-    this.differencesText.visible = true;
-    this.differencesText.anchor.set(0.5);
-
-    this.loadLevel();
-
-	this.differencesText.bringToTop();
  
+    this.levelText = game.add.text(60,30,' ', { font: '30px Bangers', fill: '#8fc25c' });
+    this.levelText.visible = true;
+    this.levelText.anchor.set(0.5);
+
+ this.loadLevel();
+
+	this.levelText.bringToTop();
+/* 
     //  Sound definitions
     errorSound = game.add.audio('error');
     levelCompletedSound = game.add.audio('levelcompleted');
@@ -83,7 +60,7 @@ export default class extends Phaser.State {
  
     //  We decode the MP3 files
     game.sound.setDecodedCallback([errorSound, levelCompletedSound, youWonSound, gameMusic], this.soundSet, this);
- 
+ */
   }
  
   clickCheck() { 
@@ -95,34 +72,33 @@ export default class extends Phaser.State {
  
   //  Find a better picture to test, both sides have differences in this picture (not good)
   loadLevel() {
-	this.differencesText.setText("Diferencias encontradas: "+progress+"/"+levels.pictures[level].differences.length);
-	this.differencesText.visible = true;
-	
+	this.levelText.setText("Nivel: "+(level+1));
+	this.levelText.visible = true;
+	/*
     this.currentPicture = game.add.sprite(0,0,levels.pictures[level].picture);
     this.currentPicture.scale.setTo(scaleX,scaleY);
  
-    for(var i = 0  ; i < levels.pictures[level].differences.length ; i++) {
+*/
+	
+	birds = this.game.add.group();
+    
+	for(var i = 0  ; i < levels[level].birds.length ; i++) {
  
-      var difference = levels.pictures[level].differences[i];
+      var birdInfo = levels[level].birds[i];
  
-      this.bmd = game.make.bitmapData(difference.w, difference.h); // careful on the size, difference size? onInputDown bug and draw
- 
-      this.currentDifferences = new Phaser.Rectangle(difference.x+(difference.x*0.515), 
-        difference.y+(difference.y*0.35),difference.w,difference.h); // offset calculation due to scaling 
-      this.bmd.copyRect(this.currentPicture, this.currentDifferences);
-      this.bmd.generateTexture(difference.name);
- 
-      var sp = this.game.add.sprite(difference.x, difference.y,difference.name);
- 
-      sp.scale.setTo(scaleX,scaleY);
- 
-      sp.inputEnabled = true;
-      sp.events.onInputDown.add(this.differenceClick, this);
+	  var bird = birds.create(birdInfo.birdX,birdInfo.birdY,'bird');
+	  
+	  var fly = bird.animations.add('fly');
+	  
+	  bird.animations.play('fly',15,true);
+	  
+      bird.events.onInputDown.add(this.birdClick, this);
     }
   }
  
-  differenceClick(difference) {
-    var sp = this.game.add.sprite(difference.x-offset,difference.y,difference.key);
+  birdClick(bird) {
+	//TODO do bird sound
+/*    var sp = this.game.add.sprite(bird.x-offset,difference.y,difference.key);
  
     sp.scale.setTo(scaleX,scaleY);
  
@@ -145,15 +121,17 @@ export default class extends Phaser.State {
 			this.game.time.events.add(Phaser.Timer.SECOND * 4, function () {this.state.start('Menu')}, this);
 		}
 	}
-  }
+  */
+}
 
   showWinnerScreen(){
-	stateText.visible = true;
+/*	stateText.visible = true;
 	stateText.bringToTop();
+  */
   }
  
   endOfGame (){
-	  return (levels.pictures.length==(level+1));
+	  return (levels[level].length==(level+1));
   }
  
   repeatDifference () {
@@ -176,20 +154,21 @@ export default class extends Phaser.State {
   }
  
   endLevel () {
-	return (progress==levels.pictures[level].differences.length);
+//	return (progress==levels.pictures[level].differences.length);
   }
  
   //  Set the next level
   nextLevel() { 
  
-    level++;
+  /*  level++;
     progress = 0;
  
     //  We change the image to name
     this.currentObject.loadLevel();
  
     //  Update the current level
-  }
+  */
+}
  
   initializeProgress() {
     level = 0;

@@ -19,9 +19,8 @@ export default class extends Phaser.State {
 
   preload () {
     //  Sprites
-    game.load.image('volumeon', 'assets/images/volumeon.png');
-    game.load.image('piggy','assets/images/piggy.png');
-
+	game.load.spritesheet('bird','assets/images/birdspritesheet.png',76,86,8);
+	
     //  Spritesheets
 
     //  Sounds
